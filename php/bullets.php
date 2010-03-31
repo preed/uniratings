@@ -27,10 +27,10 @@
  */
 
 $infoBullets = array(
-"<b>Congratulations!</b> You've successfully installed OpenRatings",
+"<b>Congratulations!</b> You've successfully installed UniRatings",
 
-"Check out <a class=\"nav\" href=\"" . OPENRATINGS_URL . "\">" . 
-OPENRATINGS_URL . "</a> for more information",
+"Check out <a class=\"nav\" href=\"" . UNIRATINGS_URL . "\">" . 
+UNIRATINGS_URL . "</a> for more information",
 );
 
 $finePrintDisclaimers = array(

@@ -33,8 +33,8 @@
 putenv("TZ=America/Los_Angeles");
 
 // Database stuff
-define('PR2_DBNAME', 'openratings');
-define('PR2_DBUSER', 'orweb');
+define('PR2_DBNAME', 'uniratings');
+define('PR2_DBUSER', 'urweb');
 define('PR2_DBPASSWD', 'password');
 define('PR2_DBHOST', 'localhost:/var/lib/mysql/mysql.sock');
 
@@ -42,11 +42,11 @@ define('PR2_DBHOST', 'localhost:/var/lib/mysql/mysql.sock');
 define('COMMENTS_EMAIL', 'you@localhost, admin@localhost, root@localhost');
 define('ERROR_EMAIL', 'you@localhost');
 define('UNIVERSITYDIR_URL', 'http://www.example.edu/directory.html'); 
-define('SITE_URL', 'http://my.openratingssite.example.com');
-define('SITE_NAME', 'MyOpenRatingsSite');
-define('SITE_ROOT', '/home/httpd/htdocs/openratings/html');
-define('SITEUI_URL', SITE_URL . '/openratingsUI/');
-define('UI_ROOT', SITE_ROOT . '/openratingsUI/');
+define('SITE_URL', 'http://my.uniratingssite.example.com');
+define('SITE_NAME', 'MyUniRatingsSite');
+define('SITE_ROOT', '/var/www/MyUniRatingsSite/htdocs/');
+define('SITEUI_URL', SITE_URL . 'uniratings-ui/');
+define('UI_ROOT', SITE_ROOT . 'uniratings-ui/');
 
 // Installation-specific Settings
 
@@ -82,28 +82,28 @@ define('STATS_MIN_EVALS', 5);
 /************************************************************************/ 
 
 // What version is this?!
-define('PR2_VERSION', '1.3.1');
-define('PR2_RELEASE_TAG', 'OPENRATINGS-1_3_1-RELEASE');
+define('PR2_VERSION', '2.0.0alaph');
+// define('PR2_RELEASE_TAG', 'OPENRATINGS-1_3_1-RELEASE');
 
 // Host filesystem locations
-define('PHP_ROOT', SITE_ROOT . '/php/'); 
+define('PHP_ROOT', SITE_ROOT . 'php/'); 
 
 // URL locations
-define('INDEX_URL', SITE_URL . '/index.phtml');
-define('EVAL_URL', SITE_URL . '/eval.phtml');
-define('ADDPROF_URL', SITE_URL . '/add.phtml');
-define('SEARCH_URL', SITE_URL . '/search.phtml');
-define('LIST_URL', SITE_URL . '/list.phtml');
-define('ABOUT_URL', SITE_URL . '/about.phtml');
-define('COMMENTS_URL', SITE_URL . '/comments.phtml');
-define('FAQ_URL', SITE_URL . '/faq.phtml');
+define('INDEX_URL', SITE_URL . 'index.phtml');
+define('EVAL_URL', SITE_URL . 'eval.phtml');
+define('ADDPROF_URL', SITE_URL . 'add.phtml');
+define('SEARCH_URL', SITE_URL . 'search.phtml');
+define('LIST_URL', SITE_URL . 'list.phtml');
+define('ABOUT_URL', SITE_URL . 'about.phtml');
+define('COMMENTS_URL', SITE_URL . 'comments.phtml');
+define('FAQ_URL', SITE_URL . 'faq.phtml');
 define('EVALID_URL', EVAL_URL . '?profid=');
-define('ENTEREVAL_URL', SITE_URL . '/entereval.phtml');
+define('ENTEREVAL_URL', SITE_URL . 'entereval.phtml');
 define('ENTEREVALID_URL', ENTEREVAL_URL . '?profid=');
-define('PROFSTATS_URL', SITE_URL . '/stats.phtml');
+define('PROFSTATS_URL', SITE_URL . 'stats.phtml');
 define('PROFSTATSID_URL', PROFSTATS_URL . '?profid=');
 
-define('OPENRATINGS_URL', 'http://openratings.sigkill.com/');
+define('UNIRATINGS_URL', 'http://github.com/preed/uniratings/');
 
 // Other constants
 define('MAX_FNAME_LEN', 30);
