@@ -1,0 +1,89 @@
+
+Here are some questions we're commonly asked; if you don't see your question
+answered here, email the users' list (details on how to do this in question
+1), and ask; we might just add it to this FAQ! :-)
+
+A slightly different, always current version of this FAQ can be found at
+http://openratings.sigkill.com/faq.phtml
+
+FAQs
+====
+
+1. I've found a bug; what do I do?
+
+First, you might try mailing the OpenRatings users' list to
+make sure it really is a bug; you can do so by sending email to
+openratings-users@lists.tolosatech.com; you don't need to subscribe.  
+
+If you really think it is a bug, however, please go to OpenRatings'
+Bugzilla installation at http://coop.sigkill.com/bz/ and fill out a bug 
+report.
+
+2. Why did you use MySQL? Why not PostgreSQL? Or <my database of choice>?
+
+Nothing would have pleased us greater than to have used PostgreSQL
+for this project; you'll find a lot of code, especially in
+php/DBConnection.php to 'fake' transactions, and really, it's very hokey.
+
+But, MySQL was chosen for two reasons:
+
+-- It's the most common database found at web hosting companies, meaning
+that using it makes OpenRatings easier for others to use.
+
+-- MySQL has a nice "fulltext" index feature which made natural language
+searches *really* easy to implement.
+
+3. Why did you use an extension of .phtml? The standard is .php!
+
+"It was like that when we got here, honest!"
+
+The real answer is rooted in the history of the original Polyratings:
+we wanted to separate the content generating file that the user sees
+from the "library" or function files that they shouldn't/wouldn't see;
+so we decided to do this by using the still-somewhat-in-style-at-the-time
+form of .phtml files, and used the .php extension for "include" files
+made up of functions.
+
+We know this is a pain in the butt for many users who don't control
+their webserver; there is a workaround via the .htaccess file, but it's
+not the most optimal solution. One of the (many) goals for OpenRatings
+2.0 is that all the files be named with the standard .php extension.
+
+5. What are all these "PR2_" variables? Or "pr2.db"? Shouldn't it be 
+"or2.db"?
+
+Those extensions, like the .phtml thing, are there for historical 
+purposes, mainly. It is a commonality among software that's been open 
+sourced to find variable names that reference internally used products 
+or APIs. 
+
+This is the case with Mozilla (their code is sprinkled with classes that
+follow the form nsFoo for "Netscape"), and, ironically, Apple's OS X 
+for "NextStep."
+
+6. I wanna help! What needs to be done?
+
+Here's a current (rough and incomplete) TODO list:
+
+-- A flexible, orthogonal authentication system (preferably using
+PHP sessions.)
+
+-- An administration interface, so tools/ becomes less important and
+multiple administrators can manage the site.
+
+-- The course-creation code could be cleaned up.
+
+-- The APIs for bulk adding professors and departments could use
+meaningful return/error values.
+
+-- Making the number and type of questions asked about a professor more
+configurable would be nice.
+
+-- Some sort of general verification that postings are coming from
+students and that those students took the class; this is gonna take
+some serious discussion before its implemented
+
+There are also a number of little buglets and architectural changes that
+really need to be worked on; check the developers' list or Bugzilla for
+more info on those.
+

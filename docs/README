@@ -1,0 +1,198 @@
+
+OpenRatings
+
+http://openratings.sigkill.com/
+openratings@sigkill.com
+openratings-users@lists.tolosatech.com
+
+What is OpenRatings?
+====================
+
+OpenRatings is a professor ratings engine and website template.
+
+It allows students to anonymously rate professors based upon three simple
+questions, and (more importantly) free form comments.
+
+As it stores this information, it allows students to search for professors
+that teach certain classes, keyword searches, and all sorts of nifty other
+things.
+
+OpenRatings isn't just for student-run sites! Many colleges have professor
+ratings sites. OpenRatings is perfect for smaller schools that want to
+allow their students to rate professors for legitimate feedback, but that
+don't have the time or money to develop such software on their own.
+
+To get started with your own OpenRatings site, look at the INSTALL file in
+this directory.
+
+
+What it takes to run an OpenRatings site
+========================================
+
+Running a site like this is NOT easy. You may have to deal with a cranky
+administration, immature students (and even professors, we've found),
+and a host of other generally not-fun issues; running a site like this
+is NOT for the faint of heart.
+
+If you're doing this to become popular, get recognition, or just
+'get back' at a professor, don't bother; there are other easier ways to
+do all of these. You have to do it because you want to help your fellow
+students pick the best professors, and if they can't do that, at least
+know what kind of hurdles they're in for during the quarter/semester.
+
+First of all, running an OpenRatings site takes dedication; it's very hard
+to get a complete list of *all* the professors and *all* the departments
+on your campus. While the installation procedure itself takes about 20
+minutes, doing the customization work and building the database necessary
+for your campus could take as long as a week.
+
+If you're going to run a successful OpenRatings site, we suggest that
+you plan on at least running it for three years; it might help to have
+the site run by a club (although, that gets into issues of University
+influence). Either way, there should be at least two people who can
+"manage" the site (add professors, moderate comments if necessary,
+etc.), and you should be planning for the longterm. At Cal Poly, SLO,
+Polyratings.com really only became popular (and useful) in its 2nd year;
+and it's taken almost 3.5 years for the database to accumulate around
+7,800 posts. The point is: you *have* to be in this for the long haul,
+or it won't work.
+
+Having said that, it's been very rewarding when you hear at
+registration time "Oh yeah, I checked OpenRatings, and this professor
+is wonderful... and that professor sucks."
+
+In the end, if you're doing it for the right reasons, it really is
+worth it.
+
+
+Developer Community
+===================
+
+Wanna help us work on OpenRatings? Great!
+
+The OpenRatings website is at http://openratings.sigkill.com/
+
+OpenRatings' Bugzilla can be found at http://coop.sigkill.com/bz/
+
+There are two OpenRatings Mailing lists: openratings-devel for developers
+and openratings-users for users.
+
+openratings-users is an open list; you don't need to subscribe to post,
+but we suggest that you do to get information (technical, administrative,
+legal, and otherwise) about what other OpenRatings sites are doing and
+going through on their on campuses.
+
+The openratings-devel list can be accessed at
+http://lists.tolosatech.com/mailman/listinfo/openratings-devel
+
+The openratings-users list can be accessed at
+http://lists.tolosatech.com/mailman/listinfo/openratings-users
+
+Assumptions
+===========
+
+A number of assumptions were made about the structure of a college campus,
+which, conveniently enough, follows the structure of the Cal Poly, SLO
+campus.
+
+These assumptions, however, may not apply to your particular
+campus/university. We've documented these assumptions below:
+
+-- There is one entity called a "campus"; for instance, "UC Davis" or
+"Cal Poly, SLO".
+
+-- A campus has many colleges, such as the "College of Engineering" or
+"College Nine."
+
+-- Each department ("Physics department", "Mathematics Department")
+is part of ONE "college" and, thus, part of one "campus".
+
+-- Each professor is a member of ONE department.
+
+-- Each class is taught by a department; some classes, identified by
+their abbreviations, may not be directly part of a department, but they
+are still taught and "owned" by that department. For example, astronomy
+(ASTR) classes may be taught by the physics (PHYS) department, so all
+ASTR classes are part of the PHYS department.
+
+-- Each comment references ONE professor and ONE class; thus, they also
+directly reference a department, a college, and a campus.
+
+-- Course numbers are always 3 digits; they are identified by a string
+of two to five capital letters. Examples include "PE 100" and "MATH 999".
+
+One of the goals for the 1.x series is to make modifying these assumptions
+easier; some of these assumptions are easily modified, and you can ask
+on the openratings-users mailing list how to accomplish these
+modifications.
+
+Others are more difficult.
+
+
+Using the API to add departments/professors
+===========================================
+
+Entering professors and departments in by hand can be tedious and boring.
+
+We've provided an API for administrators to quickly add a lot of
+departments and professors at once, assuming they have this information
+from another source (the quintessential example is a comma-separated list
+of values.
+
+These API functions are in tools/openratings-lib.pl; you gain access
+to these functions by using the "require 'openratings-lib.pl'"
+statement. Their prototypes are described below:
+
+Adding a new department:
+
+OpenRatingsLib::NewDepartment($DepartmentName,
+                              $DepartmentAbbreviation,
+                              $DepartmentCollege);
+
+$DepartmentName is the name of the department (i.e. "Physics Department");
+no longer than 40 characters.
+
+$DepartmentAbbreviation is the abbreviation for the department; 2-5
+uppercase letters (the uppercase is enforced by the API, so theoretically,
+you can pass it anything that's 2-5 letters).
+
+$DpeartmentCollege is the primary key index of the college the department
+is in; this value will be dependent on your particular installation.
+
+Adding a new professor:
+
+OpenRatingsLib::NewProfessor($FirstName,
+                             $LastName,
+                             $DepartmentAbbreviation);
+
+$FirstName is the professor's first name, no longer than 30 characters.
+
+$LastName is the professor's last name, no longer than 40 characters.
+
+$DepartmentAbbreviation is the abbreviation of the professor's home
+department (i.e. "MATH", "PHYS", "PE", etc.); the department, of course,
+must already exist before you add professors to it.
+
+Example: here's a quick and dirty example of how you might add professors
+in bulk, assuming you have a comma-delimited file called "profs" with
+the necessary information in it:
+
+#!/usr/bin/perl
+
+require "openratings-lib.pl";
+
+open(FILE, "profs") or die "profs open: $!\n";
+while(<FILE>) {
+   chomp;
+   ($lastname, $firstname, $deptabbrev) = split(/,/, $_);
+
+   $rv = OpenRatingsLib::NewProfessor($firstname, $lastname, $deptabbrev);
+
+   if ($rv) {
+      print "Prof $lastname created; profid in database is $rv\n";
+   }
+   else {
+      print "FAILURE: prof $lastname\n";
+   }
+}
+close(FILE);

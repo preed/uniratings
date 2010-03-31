@@ -1,0 +1,52 @@
+
+1.x -> 1.3
+==========
+
+-- OpenRatings now stores full hostnames in addition to IP addresses; this 
+requires administrators to create a new table in the database. See bug 63 for 
+more information.
+
+To make this change, run the following command from the MySQL monitor 
+(command line client):
+
+CREATE TABLE or_hostnames (
+  hostid int(10) unsigned NOT NULL auto_increment PRIMARY KEY,
+  ipaddr char(8) NOT NULL default '',
+  hostname varchar(255) NOT NULL default '',
+  recorded datetime NOT NULL default '0000-00-00 00:00:00',
+  lastseen datetime NOT NULL default '0000-00-00 00:00:00',
+  KEY ipaddr_idx (ipaddr)
+) 
+
+1.x -> 1.2
+==========
+
+-- OpenRatings is now distributed as two separate modules: the OpenRatings
+professor ratings engine and a separate user interface module. If you're
+using CVS, you must checkout the new 'openratingsUI' module. If you've
+pulled down the source, you'll need to download the associated OpenRatings
+UI tar.gz file off the website. Bug 15 has the details of the new 
+architecture.
+
+When upgrading the engine, you'll also need to define some new constants in
+Constants.php, specifically the SITEUI_URL and the UI_ROOT constant; see
+step 12 in docs/INSTALL for more info.
+
+Finally, you'll probably want to run the new 'fixperms.pl' script; see
+steps 5 and 6 in docs/INSTALL for more info.
+
+1.0 -> 1.1
+==========
+
+-- All tables in the database must be renamed; see bug 21 for more 
+information.
+
+To make this change, run the following command from the MySQL monitor 
+(command line client):
+
+RENAME TABLE abbrev_map TO or_abbrev_map, campus TO or_campus, college TO
+or_college, comment TO or_comment, comment_text TO or_comment_text, course TO 
+or_course, dept TO or_dept, moderated_comment_text TO or_moderated_comment_text,
+objects TO or_objects, professor TO or_professor, transaction_types TO 
+or_transaction_types, transactions TO or_transactions;
+

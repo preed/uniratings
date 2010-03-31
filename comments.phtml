@@ -1,0 +1,62 @@
+<?php
+/*
+ * The contents of this file are subject to the Jabber Open Source License 
+ * Version 1.0 (the "License").  You may not copy or use this file, in either 
+ * source code or executable form, except in compliance with the License.  You 
+ * may obtain a copy of the License at http://www.jabber.com/license/ or at 
+ * http://www.opensource.org/.
+ * 
+ * Read the LICENSE file included with the source distribution for more
+ * information.
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis, 
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied.  See the License 
+ * for the specific language governing rights and limitations under the 
+ * License.
+ *
+ * Copyrights:
+ *
+ * Portions created by or assigned to Polyratings.com are Copyright (c) 
+ * 1999-2002 Polyratings.com.  All Rights Reserved.  Contact information for 
+ * Polyratings.com, is available at http://www.polyratings.com/.
+ *
+ * Portions Copyright (c) 1999-2002 Forrest Lanning
+ *                        2001-2002 J. Paul Reed
+ *
+ * Contributor(s):
+ *
+ */
+
+include_once('php/Constants.php');
+include_once(PHP_ROOT . 'UIHandle.php');
+
+$output = new UIHandle();
+
+if (! isset($_REQUEST['sendcomment'])) {
+   $output->PrintPage('submitComment');
+}
+else {
+   $remoteAddr = getenv('REMOTE_ADDR');
+   $remoteHost = gethostbyaddr($remoteAddr);
+   $date = date("r");
+
+   $from = $_REQUEST['from'];
+   $reason = $_REQUEST['reason'];
+   $comments = $_REQUEST['comments'];
+   $subject = $_REQUEST['subject'];
+
+   $formattedMessage = "
+Message from: $from
+Reason: $reason
+Remote Address: $remoteAddr
+Remote Host: $remoteHost
+Date: $date
+Comments: \n$comments 
+";
+
+   $mailReturnVal = mail(COMMENTS_EMAIL, $subject, $formattedMessage);
+   assert($mailReturnVal);
+
+   $output->PrintPage('commentSubmitted');
+}
+?>

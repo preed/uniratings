@@ -1,0 +1,288 @@
+
+This document covers installation of both the OpenRatings professor 
+evaluation engine and the default OpenRatings user interface (UI) 
+package.
+
+In most cases, if you have all of the prerequisites setup, the actual 
+installation process takes about a half hour. 
+
+The long parts are getting the prerequisites setup correctly if you don't
+have them setup already and populating the database with your school's
+department/professor information.
+
+Prerequisites
+==============
+
+To install OpenRatings, you will need the following software:
+
+	-- PHP >= 4.1.2 
+	(earlier versions have serious security vulnerabilities, details at
+	http://www.cert.org/advisories/CA-2002-05.html);
+
+	This software is known to work with 4.1.2, but has not been tested
+	with 4.2.1, the latest release of PHP. There have been some reported
+	incompatibilities with other PHP software packages and 4.2.1, but
+	we don't have details at this time. When we do, we will make sure
+	that OpenRatings is compliant.
+
+	Also, you'll need to make sure your installation of PHP has SMTP
+	support (the mail() function) and MySQL support.
+
+	Get it at www.php.net.
+
+	-- MySQL >= 3.23.20 or so
+
+	Get it at www.mysql.com.
+
+	-- Apache >= 1.3.26 
+	(earlier versions have a security vulnerability, details at
+	http://www.cert.org/advisories/CA-2002-17.html)
+
+	Get it at www.apache.org.
+
+	-- Perl >= 5.005
+
+	Get it at www.perl.com.
+
+	-- Perl DBI/DBD drivers for MySQL; these are necessary to use the tools
+	which OpenRatings uses to construct the initial database, and use some
+	of the management tools. We've used the DBI-1.201 and DBD-mysql-2.1010
+	packages without incident.
+
+	Get them at cpan.perl.com.
+
+Instructions on properly installing these software packages is beyond
+the scope of this document; there are a number of documents out there
+on the web that will walk you through this process, however. Google is
+your friend.
+
+Before you start the installation procedure, it will also help if you have
+a list of departments and professors, with their associated departments
+at your college, in some format that you can easily parse (comma-separated,
+etc.).
+
+
+Installation
+============
+
+These steps assume you have all the above software installed and in working 
+order. They also assume that you've un-tarred and un-gzipped both the engine 
+source code (openratings-engine-x.y.tar.gz) and the UI source 
+(openratings-ui-x.y-tar.gz).  Make sure you obtain the SAME VERSION 
+of the engine and the UI source; they go together.  An example of this 
+might be:
+
+# install in /var/www/openratings
+cd /var/www/
+tar xfvz openratings-engine-x.y.tar.gz 
+cd openratings
+tar xfvz openratings-ui-x.y.tar.gz
+
+The files should NOT be owned by the same user the webserver runs as;
+they should be owned by a user who's responsible for maintaining the site.
+
+1. Create a new MySQL database for OpenRatings to use; if you already
+have a database you're planning on using for OpenRatings, you can skip
+this step (this will be the case at most hosting providers; they have 
+databases already setup for you to use, or you'll have to contact them to 
+create a database for you). For example:
+
+mysqladmin -u root -p create openratings
+
+2. Create all the necessary OpenRatings tables:
+mysql -u root -p openratings < php/pr2.db
+
+3. OPTIONAL, but recommended: Create a new MySQL OpenRatings "web" user who 
+has limited access to the database; below, we create just such a user a
+username of 'orweb' and a password of 'password'; pick a better password
+for your installation. :-)
+
+First, we get access to the database as root (or anyone else who can create 
+users):
+
+mysql -u root -p openratings
+
+Then we create a user AND grant them the appropriate privileges on our
+database; you may have to change this statement to whatever you called
+your OpenRatings database (if you didn't call it 'openratings'), and,
+of course, you can pick a different user, and SHOULD pick a different
+password.
+
+mysql> grant select, insert, update, delete on openratings.* to orweb
+identified by 'password';
+
+Here, we tell mysql to reload its privilege table to take note of the 
+updates:
+
+mysql> flush privileges;
+
+You can now quit the MySQL monitor by typing "exit".
+
+4. Enter the database name (PR2_DBNAME), username (PR2_DBUSER), and password 
+(PR2_DBPASSWD) you've given to the user that will access that database in 
+tools/openratings-config.pl and php/Constants.php. This may be the user you
+created in step 3 OR if you're on a hosting provider, it may be just your
+standard database user.
+
+You may also need to change the PR2_DBHOST variable in Constants.php; the 
+current setting should work for most installations, but if there is no file 
+called '/var/lib/mysql/mysql.sock', you will need to find where that file 
+exists and change the path; another common value for this variable is  
+
+"localhost:/tmp/mysql.sock" (typically seen in RedHat Linux) and  
+"localhost:/var/run/mysqld/mysqld.sock" (Debian Linux)
+
+There are surely others.
+
+If you're connecting to a remote database server, you'll definitely need
+to change this setting.
+
+5. Change directories in the 'tools' directory ("cd tools").
+
+6. Run the fixperms.pl Perl script ("perl ./fixperms.pl ..") to fix the 
+permissions of all the files in your installation.  fixperms.pl needs an 
+argument specifying where your OpenRatings installation root directory is - 
+in the above example, we used '..' because we assumed that you were in the 
+'tools/' directory (from step #5).  Make SURE to specify the CORRECT ROOT 
+DIRECTORY!
+
+7. As you will be adding departments and professors next, now is a good time
+to verify that your school's class identification system matches what
+OpenRatings expects: OpenRatings expects all classes to be identified by
+a two-part identifier: a department abbreviation and a course number.
+
+There are regular expressions for both parts of these identifiers in both the
+PHP and the Perl to make these more customizable (see bug 50 for more 
+information). OpenRatings assumes that all department abbreviations will
+be 2 to 5 capital letters long, and all course numbers will be three digits.
+
+Valid examples include IT 100, CSC 500, and MATH 999.
+
+If this is true for your campus, you can continue on to the next step. 
+
+If this is not true for your campus, the regular expressions you will have to
+modify are in (for the Perl) tools/openratings-config.pl, and are called the
+$courseAbbrevRegex and $courseNumRegex. For the PHP, they are in
+php/Constants.php, and are called COURSE_ABBREV_REGEX and COURSE_NUM_REGEX.
+
+If you need help modifying these regular expressions, check with the
+OpenRatings users' mailing list.
+
+8. Run the Perl script install.pl ("./install.pl"); it will guide you 
+through the process of setting up a new campus and colleges.
+
+NOTE: Examples of what OpenRatings thinks the terms "campus" and "college" 
+mean are in the README file, under the "Assumptions" heading.
+
+9. Run the newdept.pl ("./newdept.pl") script to enter your college's 
+departments.
+
+If you have a list of departments in your own format (comma-
+separated, etc.), read the README file to learn how to use the
+API to add departments in a scripted fashion.
+
+10. Run the newprof.pl ("./newprof.pl") script to enter your college's 
+professors.
+
+If you have a list of professors in your own format (comma-
+separated, etc.), read the README file to learn how to use the
+API to add professors in a scripted fashion.
+
+11. If your Apache config does not have an entry for handling .phtml files,
+you will have to add one. If you can edit Apache's config, you can 
+add the line:
+
+	AddType application/x-httpd-php .phtml
+
+to Apache's httpd.conf file. 
+
+If you don't have access to change the httpd.conf file, you can create a 
+.htaccess file in the root directory of the source distribution and add 
+the above statement there; it will work as long as your ISP has allowed
+you to override certain configuration directives in .htaccess files.
+
+If it doesn't work (and you'll know because you will see the PHP source 
+instead of HTML), contact your ISP and ask about allowing the "FileInfo"
+directive to be overridden.
+
+More information about this directive can be found at:
+http://httpd.apache.org/docs/mod/mod_mime.html#addtype
+
+12. Make your webserver recognize index.phtml as a normal index file;
+to do this, edit your httpd.conf file, find the DirectoryIndex line, add
+'index.phtml' on to the end of it, and restart your webserver.
+
+If you're unable to do this, place the index.cgi file in the tools/contrib
+directory into the site root directory. You will have to edit this simple
+bash script to point to the correct location of your OpenRatings install;
+be sure to include the full URL and make sure it ends in the 
+index.phtml file which is the root of the OpenRatings site.
+
+Also, make sure it's executable (755 permissions).
+
+13. In php/Constants.php, modify the following installation-specific
+define()s:
+
+	COMMENTS_EMAIL, ERROR_EMAIL, UNIVERSITYDIR_URL, SITE_URL, SITE_NAME, 
+	SITE_ROOT, SITEUI_URL, and UI_ROOT
+
+COMMENTS_EMAIL is the email address that comments from the comments page
+are sent to; this can be multiple email addresses separated by a comma.
+
+ERROR_EMAIL is the email address that technical errors should go to;
+most installations will just use the same addresses as in COMMENTS_EMAIL.
+
+UNIVERSITYDIR_URL is the URL of your University's online directory; this is
+to aid students who are submitting professors in making sure that names
+are spelled correctly.
+
+SITE_URL is the root URL of the site, including the http, but without a
+trailing slash, i.e. "http://www.polyratings.com"
+
+SITE_NAME is the common name of your OpenRatings installation, i.e. 
+"Polyratings.com", "DavisRatings", etc.
+
+SITE_ROOT is the root directory of the installation without a trailing
+slash, i.e. "/home/httpd/htdocs/openratings"
+
+SITEUI_URL is the URL to the user interface portion of OpenRatings. If you
+install directly from source or CVS, the default setting should be fine,
+but if you want to customize your OpenRatings installation, you can use
+this variable to point the OpenRatings engine at that user interface code.
+
+UI_ROOT is the file system location of the user interface portion of
+OpenRatings. As with SITEUI_URL, the default will work in most instances;
+you only need to change it if you make changes to the UI and put those
+changes in a new directory.
+
+Also, change your time zone environment, if you care:
+   putenv("TZ=America/Los_Angeles");
+
+14. Modify the hard coded instances of "MyOpenRatingsSite"; currently,
+there should be only one in index.phtml. You have to edit it manually
+because we placed spaces in between all of the letters (i.e. 
+"M y O p e n R a t i n g s S i t e") for stylistic reasons, so we couldn't 
+store it in the SITE_NAME variable.
+
+15. Edit php/bullets.php to have the correct information for your
+installation.
+
+The $infoBullets array generally contains important information for your
+campus; we put registration dates, finals dates, and other campus-specific
+information in this box.
+
+The $finePrintDisclaimers include just that: disclaimers that you want your
+users to know; examples have been included, but you may want to modify or
+add certain disclaimers for your site.
+
+$emailBoxAddrs are the email addresses you want to appear in the "E-mail 
+us directly" box shown (by default) on the "Contact Us" page.
+
+16. Run 'fixperms.pl' from the tools directory one more time.
+
+NOTE: fixperms.pl is used to bring the permissions of your installation to
+a correct, sane state. If you ever run a 'cvs update' command or install
+a patch or new source tar.gz file, you'll probably want to re-run 
+fixperms.pl. 
+
+17. That's it! You should be ready to go!

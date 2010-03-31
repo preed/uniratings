@@ -1,0 +1,207 @@
+#
+#  The contents of this file are subject to the Jabber Open Source License 
+#  Version 1.0 (the "License").  You may not copy or use this file, in either 
+#  source code or executable form, except in compliance with the License.  You 
+#  may obtain a copy of the License at http://www.jabber.com/license/ or at 
+#  http://www.opensource.org/.
+#  
+#  Read the LICENSE file included with the source distribution for more
+#  information.
+# 
+#  Software distributed under the License is distributed on an "AS IS" basis, 
+#  WITHOUT WARRANTY OF ANY KIND, either express or implied.  See the License 
+#  for the specific language governing rights and limitations under the License.
+# 
+#  Copyrights:
+# 
+#  Portions created by or assigned to Polyratings.com are Copyright (c) 
+#  1999-2002 Polyratings.com.  All Rights Reserved.  Contact information for 
+#  Polyratings.com, is available at http://www.polyratings.com/.
+# 
+#  Portions Copyright (c) 2001-2002 J. Paul Reed
+# 
+#  Contributor(s):
+# 
+# 
+# MySQL dump 8.16
+#
+#--------------------------------------------------------
+# Host: localhost    Database: openratings
+#--------------------------------------------------------
+# Server version	3.23.47-log
+
+#
+# Table structure for table 'or_abbrev_map'
+#
+
+CREATE TABLE or_abbrev_map (
+  abbrev varchar(5) NOT NULL default '',
+  deptid smallint(5) unsigned NOT NULL default '0',
+  UNIQUE KEY abbrev_idx (abbrev)
+) TYPE=MyISAM;
+
+#
+# Table structure for table 'or_campus'
+#
+
+CREATE TABLE or_campus (
+  campusid tinyint(5) unsigned NOT NULL auto_increment,
+  name varchar(100) NOT NULL default '',
+  abbrev varchar(10) NOT NULL default '',
+  objectid int(10) unsigned NOT NULL default '0',
+  PRIMARY KEY  (campusid),
+  UNIQUE KEY objid_idx (objectid)
+) TYPE=MyISAM;
+
+#
+# Table structure for table 'or_college'
+#
+
+CREATE TABLE or_college (
+  collegeid smallint(5) unsigned NOT NULL auto_increment,
+  name varchar(100) NOT NULL default '',
+  campusid smallint(5) unsigned NOT NULL default '0',
+  objectid int(10) unsigned NOT NULL default '0',
+  PRIMARY KEY  (collegeid),
+  UNIQUE KEY objid_idx (objectid)
+) TYPE=MyISAM;
+
+#
+# Table structure for table 'or_comment'
+#
+
+CREATE TABLE or_comment (
+  commentid int(10) unsigned NOT NULL auto_increment,
+  profid int(10) unsigned NOT NULL default '0',
+  courseid int(10) unsigned NOT NULL default '0',
+  quarter tinyint(5) unsigned NOT NULL default '0',
+  studentclass enum('frosh','soph','junior','senior','spr-senior','grad') NOT NULL default 'frosh',
+  coursetype enum('elective','ge','support','major') NOT NULL default 'elective',
+  grade enum('a','b','c','d','f','cr','nc','w','na') NOT NULL default 'w',
+  ques1 tinyint(1) unsigned default NULL,
+  ques2 tinyint(1) unsigned default NULL,
+  ques3 tinyint(1) unsigned default NULL,
+  status enum('pending','moderated','hidden','clear','flagged','deleted','transaction') NOT NULL default 'transaction',
+  objectid int(10) unsigned NOT NULL default '0',
+  PRIMARY KEY  (commentid),
+  UNIQUE KEY objid_idx (objectid),
+  KEY profid_index (profid),
+  KEY courseid_index (courseid)
+) TYPE=MyISAM;
+
+#
+# Table structure for table 'or_comment_text'
+#
+
+CREATE TABLE or_comment_text (
+  commentid int(10) unsigned NOT NULL default '0',
+  comment text NOT NULL,
+  PRIMARY KEY  (commentid),
+  FULLTEXT KEY comment_text_idx (comment)
+) TYPE=MyISAM;
+
+#
+# Table structure for table 'or_course'
+#
+
+CREATE TABLE or_course (
+  courseid int(10) unsigned NOT NULL auto_increment,
+  deptid smallint(5) unsigned NOT NULL default '0',
+  abbrev varchar(5) NOT NULL default '',
+  number smallint(4) unsigned NOT NULL default '0',
+  type enum('lec','lab','rec','exp') NOT NULL default 'lec',
+  title varchar(100) default NULL,
+  objectid int(10) unsigned NOT NULL default '0',
+  PRIMARY KEY  (courseid),
+  UNIQUE KEY objid_idx (objectid)
+) TYPE=MyISAM;
+
+#
+# Table structure for table 'or_dept'
+#
+
+CREATE TABLE or_dept (
+  deptid smallint(5) unsigned NOT NULL auto_increment,
+  name varchar(40) NOT NULL default '',
+  abbrev varchar(5) NOT NULL default '',
+  collegeid smallint(5) unsigned NOT NULL default '0',
+  campusid smallint(5) unsigned NOT NULL default '0',
+  objectid int(10) unsigned NOT NULL default '0',
+  PRIMARY KEY  (deptid),
+  UNIQUE KEY abbrev_idx (abbrev),
+  UNIQUE KEY objid_idx (objectid)
+) TYPE=MyISAM;
+
+#
+# Table structure for table 'or_moderated_comment_text'
+#
+
+CREATE TABLE or_moderated_comment_text (
+  commentid int(10) unsigned NOT NULL default '0',
+  comment text NOT NULL,
+  ctime datetime NOT NULL default '0000-00-00 00:00:00',
+  KEY commentid_ndx (commentid)
+) TYPE=MyISAM;
+
+#
+# Table structure for table 'or_objects'
+#
+
+CREATE TABLE or_objects (
+  objectid int(10) unsigned NOT NULL auto_increment,
+  created timestamp(14) NOT NULL,
+  PRIMARY KEY  (objectid)
+) TYPE=MyISAM;
+
+#
+# Table structure for table 'or_professor'
+#
+
+CREATE TABLE or_professor (
+  profid int(10) unsigned NOT NULL auto_increment,
+  fname varchar(30) NOT NULL default '',
+  lname varchar(40) NOT NULL default '',
+  deptid int(10) unsigned NOT NULL default '0',
+  status enum('active','retired','deleted','pending','rejected') NOT NULL default 'pending',
+  objectid int(10) unsigned NOT NULL default '0',
+  PRIMARY KEY  (profid),
+  UNIQUE KEY objid_idx (objectid)
+) TYPE=MyISAM;
+
+#
+# Table structure for table 'or_transaction_types'
+#
+
+CREATE TABLE or_transaction_types (
+  type smallint(5) unsigned NOT NULL auto_increment,
+  action varchar(50) NOT NULL default '',
+  maintable varchar(30) NOT NULL default '',
+  PRIMARY KEY  (type),
+  UNIQUE KEY action_idx (action)
+) TYPE=MyISAM;
+
+#
+# Table structure for table 'or_transactions'
+#
+
+CREATE TABLE or_transactions (
+  eventid int(10) unsigned NOT NULL auto_increment,
+  type smallint(5) unsigned NOT NULL default '0',
+  starttime datetime NOT NULL default '0000-00-00 00:00:00',
+  endtime datetime NOT NULL default '0000-00-00 00:00:00',
+  state enum('pending','complete') NOT NULL default 'pending',
+  objectid int(10) unsigned NOT NULL default '0',
+  ipaddr char(8) NOT NULL default '',
+  PRIMARY KEY  (eventid),
+  KEY obj_id_idx (objectid)
+) TYPE=MyISAM;
+
+CREATE TABLE or_hostnames (
+  hostid int(10) unsigned NOT NULL auto_increment,
+  ipaddr char(8) NOT NULL default '',
+  hostname varchar(255) NOT NULL default'',
+  recorded datetime NOT NULL default '0000-00-00 00:00:00',
+  lastseen datetime NOT NULL default '0000-00-00 00:00:00',
+  PRIMARY KEY (hostid),
+  KEY ipaddr_idx (ipaddr)
+) TYPE=MyISAM;

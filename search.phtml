@@ -1,0 +1,97 @@
+<?php
+/*
+ * The contents of this file are subject to the Jabber Open Source License 
+ * Version 1.0 (the "License").  You may not copy or use this file, in either 
+ * source code or executable form, except in compliance with the License.  You 
+ * may obtain a copy of the License at http://www.jabber.com/license/ or at 
+ * http://www.opensource.org/.
+ * 
+ * Read the LICENSE file included with the source distribution for more
+ * information.
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis, 
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied.  See the License 
+ * for the specific language governing rights and limitations under the 
+ * License.
+ *
+ * Copyrights:
+ *
+ * Portions created by or assigned to Polyratings.com are Copyright (c) 
+ * 1999-2002 Polyratings.com.  All Rights Reserved.  Contact information for 
+ * Polyratings.com, is available at http://www.polyratings.com/.
+ *
+ * Portions Copyright (c) 2001-2002 J. Paul Reed
+ *
+ * Contributor(s):
+ *
+ */
+
+include_once('php/Constants.php');
+include_once(PHP_ROOT . 'UIHandle.php');
+include_once(PHP_ROOT . 'DBInterfaceLib.php');
+include_once(PHP_ROOT . 'SearchLib.php');
+
+$output = new UIHandle();
+
+$type = $_REQUEST['type'];
+$sort = $_REQUEST['sort'];
+$format = $_REQUEST['format'];
+
+// Set the default search params 
+
+$format = is_null($format) ? SEARCH_DEFAULT_FORMAT : $format;
+$sort = is_null($sort) ? SEARCH_DEFAULT_SORT : $sort;
+
+if (isset($type)) {
+   if (!is_null(($srchFuncPtr = GetSearchFunction($type))) && 
+    isValidSortOrder($sort) && isValidSearchDisplayFormat($format)) {
+
+      $criteria = array('terms' => $_REQUEST['terms'],
+                        'deptid' => $_REQUEST['deptid'],
+                        'courseAbbrev' => $_REQUEST['abbrev'],
+                        'courseNum' => $_REQUEST['number']);
+
+      // Check for various error conditions specific to a search type
+      if ($type == "Class" && !preg_match(COURSE_NUM_REGEX, 
+       $criteria['courseNum'])) {
+         $output->ErrorPage("Please specify a " . COURSE_NUM_LENGTH . " digit course number to search by class");
+         exit;
+      }
+      else if (($type == "ProfName" || $type == "Keyword") && 
+       preg_match('/^\s*$/', $criteria['terms'])) {
+         $output->ErrorPage("You must enter some search terms");
+         exit;
+      }
+
+      // safe, due to use of isValidSearchType above, which checks to
+      // make sure a function pointer construct works
+      $results = $srchFuncPtr($criteria, $sort);
+
+      if (0 == count($results)) {
+         $output->PutValue('courseAbbrevs', GetCourseAbbreviations());
+         $output->PutValue('deptInfo', GetDepartmentInfo());
+         $output->PrintPage('searchNoResults');
+      }
+      else if (EVALS_AUTODISPLAY_SINGLE_RESULT && 1 == count($results)) {
+          header("Location: " . EVALID_URL . $results[0]['profid']);
+          exit;
+      }
+      else {
+         $output->PutValue('searchType', $type);
+         $output->PutValue('searchResults', $results);
+         $output->PutValue('searchFormat', $format);
+         $output->PrintPage('searchResults');
+      }
+   }
+   else {
+      $output->ErrorPage("Unknown Search Type and/or Sort");
+      exit;
+   }
+}
+else {
+   $output->PutValue('courseAbbrevs', GetCourseAbbreviations());
+   $output->PutValue('deptInfo', GetDepartmentInfo());
+   $output->PrintPage('search');   
+}
+
+?>
